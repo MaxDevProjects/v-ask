@@ -4,10 +4,13 @@ import path from 'path'
 import fs from 'fs'
 import type { Task, CreateTaskInput, UpdateTaskInput, User, RegisterInput, UserPublic } from './types.js'
 
-// DB path from env or fallback
-const dbPath =
-  process.env.DB_PATH ??
-  path.join(process.cwd(), 'tasks.db')
+// DB path from env or environment-aware fallback
+const defaultDbPath =
+  process.env.NODE_ENV === 'production'
+    ? path.join('/app/data', 'tasks.db')
+    : path.join(process.cwd(), 'tasks.db')
+
+const dbPath = process.env.DB_PATH ?? defaultDbPath
 
 // Ensure directory exists
 fs.mkdirSync(path.dirname(dbPath), { recursive: true })
@@ -140,5 +143,3 @@ export const deleteTask = (id: string, userId: string): boolean => {
   const result = stmt.run(id, userId)
   return result.changes > 0
 }
-
-export default db

@@ -36,11 +36,12 @@ RUN npm rebuild better-sqlite3
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data
-
 # Add non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Create writable data directory for SQLite
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app/data
+
 USER appuser
 
 # Expose port
