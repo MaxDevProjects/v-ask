@@ -1,14 +1,18 @@
-import Database, { Database as DatabaseType } from 'better-sqlite3'
+import Database from 'better-sqlite3'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
+import fs from 'fs'
 import type { Task, CreateTaskInput, UpdateTaskInput, User, RegisterInput, UserPublic } from './types.js'
 
-// Use /app/data in Docker, local directory otherwise
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? '/app/data/tasks.db' 
-  : path.join(process.cwd(), 'tasks.db')
+// DB path from env or fallback
+const dbPath =
+  process.env.DB_PATH ??
+  path.join(process.cwd(), 'tasks.db')
 
-const db: DatabaseType = new Database(dbPath)
+// Ensure directory exists
+fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+
+const db = new Database(dbPath)
 
 // Initialize database
 db.exec(`

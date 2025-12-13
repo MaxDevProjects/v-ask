@@ -28,6 +28,7 @@ services:
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - AI_MODEL=${AI_MODEL:-gemini-2.5-flash}
       - JWT_SECRET=${JWT_SECRET:-secure-production-secret}
+      - DB_PATH=/app/data/tasks.db
       - FRONTEND_URL=http://localhost:3100
     volumes:
       - v-ask-data:/app/data
