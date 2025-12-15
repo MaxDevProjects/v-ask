@@ -2,7 +2,10 @@ import type { UserPublic, AuthResponse, RegisterInput, LoginInput } from '~/type
 
 export const useAuth = () => {
   const config = useRuntimeConfig()
-  const apiBase = config.public.apiBase || 'http://localhost:3001'
+  const apiBase = config.public.apiBase
+  if (!apiBase) {
+    throw new Error('Missing runtimeConfig.public.apiBase (set NUXT_PUBLIC_API_BASE)')
+  }
 
   const user = useState<UserPublic | null>('auth-user', () => null)
   const isInitialized = useState<boolean>('auth-initialized', () => false)

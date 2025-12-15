@@ -3,6 +3,9 @@ import type { Task, CreateTaskInput, UpdateTaskInput, ParsedNote } from '~/types
 export const useTasks = () => {
   const config = useRuntimeConfig()
   const API_BASE = config.public.apiBase
+  if (!API_BASE) {
+    throw new Error('Missing runtimeConfig.public.apiBase (set NUXT_PUBLIC_API_BASE)')
+  }
   const { getAuthHeaders } = useAuthToken()
 
   const tasks = useState<Task[]>('tasks', () => [])
@@ -121,6 +124,9 @@ export const useTasks = () => {
 export const useParseNote = () => {
   const config = useRuntimeConfig()
   const API_BASE = config.public.apiBase
+  if (!API_BASE) {
+    throw new Error('Missing runtimeConfig.public.apiBase (set NUXT_PUBLIC_API_BASE)')
+  }
   const { getAuthHeaders } = useAuthToken()
 
   const loading = useState<boolean>('parse-loading', () => false)

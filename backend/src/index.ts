@@ -22,6 +22,7 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const HOST = process.env.HOST || '0.0.0.0'
 
 // Security middleware
 app.use(helmet({
@@ -58,11 +59,20 @@ const authLimiter = rateLimit({
 app.use(generalLimiter)
 
 // CORS
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean)
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Restrict to trusted origins
+  origin(origin, callback) {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.length === 0) return callback(null, true)
+    return callback(null, allowedOrigins.includes(origin))
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Restrict allowed headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 app.use(express.json({ limit: '5kb' })) // Reduce body size limit
 app.use(cookieParser())
@@ -334,6 +344,6 @@ app.delete('/api/tasks/:id', authMiddleware, (req: AuthRequest, res) => {
 })
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
+app.listen(Number(PORT), HOST, () => {
+  console.log(`🚀 Server running on http://${HOST}:${PORT}`)
 })

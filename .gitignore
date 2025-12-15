@@ -1,2 +1,5 @@
 credentials
 .env
+.env.*
+!.env.example
+!.env.*.example
