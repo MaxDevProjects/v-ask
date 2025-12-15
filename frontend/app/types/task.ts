@@ -14,8 +14,10 @@ export interface Task {
 export interface ParsedNote {
   title: string
   note: string
-  date: string
-  time: string
+  date: string | null
+  time: string | null
+  ai_used?: boolean
+  ai_provider?: 'gemini' | 'openai' | 'fallback'
 }
 
 export interface CreateTaskInput {

@@ -9,7 +9,7 @@ RUN apk add --no-cache python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (includes native build for better-sqlite3)
 RUN npm ci
 
 # Copy source files
@@ -23,18 +23,16 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install runtime dependencies for better-sqlite3
-RUN apk add --no-cache python3 make g++
-
-# Copy package files and install production deps only
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Rebuild better-sqlite3 for this architecture
-RUN npm rebuild better-sqlite3
+# su-exec (drop privileges after init)
+RUN apk add --no-cache su-exec
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+
+# Remove devDependencies without requiring network access
+RUN npm prune --omit=dev
 
 # Add non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
@@ -42,7 +40,8 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Create writable data directory for SQLite
 RUN mkdir -p /app/data && chown -R appuser:appgroup /app/data
 
-USER appuser
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 3001
@@ -52,4 +51,4 @@ ENV NODE_ENV=production
 ENV PORT=3001
 
 # Start the application
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["/app/entrypoint.sh"]

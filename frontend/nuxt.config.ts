@@ -50,7 +50,7 @@ export default defineNuxtConfig({
       installPrompt: true
     },
     devOptions: {
-      enabled: true,
+      enabled: process.env.PWA_DEV === 'true',
       type: 'module'
     }
   },

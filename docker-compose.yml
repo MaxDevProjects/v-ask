@@ -15,7 +15,6 @@ services:
     volumes:
       - v-ask-data:/app/data
     restart: unless-stopped
-    user: "1000:1000"
     read_only: true
     security_opt:
       - no-new-privileges:true
@@ -29,7 +28,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-    user: "1000:1000"
     read_only: true
     security_opt:
       - no-new-privileges:true

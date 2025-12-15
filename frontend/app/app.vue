@@ -53,7 +53,7 @@ import IconKanban from '~/components/icons/IconKanban.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { user, isAuthenticated, logout } = useAuth()
+const { user, isAuthenticated, isInitialized, logout, fetchUser } = useAuth()
 
 const tabs = [
   { path: '/', label: "Aujourd'hui", icon: IconToday },
@@ -69,6 +69,12 @@ const handleLogout = async () => {
   await logout()
   router.push('/login')
 }
+
+onMounted(() => {
+  if (!isInitialized.value) {
+    fetchUser()
+  }
+})
 </script>
 
 <style scoped>
