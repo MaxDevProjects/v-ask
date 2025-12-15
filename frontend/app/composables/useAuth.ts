@@ -7,6 +7,7 @@ export const useAuth = () => {
   const user = useState<UserPublic | null>('auth-user', () => null)
   const isInitialized = useState<boolean>('auth-initialized', () => false)
   const error = useState<string | null>('auth-error', () => null)
+  const { getAuthHeaders, setToken } = useAuthToken()
 
   // Local loading state - not shared across components
   const isLoading = ref(false)
@@ -18,7 +19,8 @@ export const useAuth = () => {
       error.value = null
 
       const response = await fetch(`${apiBase}/api/auth/me`, {
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
 
       if (response.ok) {
@@ -55,6 +57,7 @@ export const useAuth = () => {
       }
 
       user.value = (data as AuthResponse).user
+      setToken((data as AuthResponse).token)
       return true
     } catch (e) {
       console.error('Register error:', e)
@@ -85,6 +88,7 @@ export const useAuth = () => {
       }
 
       user.value = (data as AuthResponse).user
+      setToken((data as AuthResponse).token)
       return true
     } catch (e) {
       console.error('Login error:', e)
@@ -99,12 +103,14 @@ export const useAuth = () => {
     try {
       await fetch(`${apiBase}/api/auth/logout`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
     } catch (e) {
       console.error('Logout error:', e)
     } finally {
       user.value = null
+      setToken(null)
     }
   }
 

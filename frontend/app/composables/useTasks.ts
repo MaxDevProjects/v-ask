@@ -3,6 +3,7 @@ import type { Task, CreateTaskInput, UpdateTaskInput, ParsedNote } from '~/types
 export const useTasks = () => {
   const config = useRuntimeConfig()
   const API_BASE = config.public.apiBase
+  const { getAuthHeaders } = useAuthToken()
 
   const tasks = useState<Task[]>('tasks', () => [])
   const loading = useState<boolean>('tasks-loading', () => false)
@@ -14,7 +15,8 @@ export const useTasks = () => {
     try {
       const url = date ? `${API_BASE}/api/tasks?date=${date}` : `${API_BASE}/api/tasks`
       const response = await $fetch<Task[]>(url, {
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
       tasks.value = response
     } catch (e) {
@@ -32,7 +34,8 @@ export const useTasks = () => {
       const response = await $fetch<Task>(`${API_BASE}/api/tasks`, {
         method: 'POST',
         body: input,
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
       tasks.value.push(response)
       return response
@@ -52,7 +55,8 @@ export const useTasks = () => {
       const response = await $fetch<Task>(`${API_BASE}/api/tasks/${id}`, {
         method: 'PUT',
         body: input,
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
       const index = tasks.value.findIndex(t => t.id === id)
       if (index !== -1) {
@@ -74,7 +78,8 @@ export const useTasks = () => {
     try {
       await $fetch(`${API_BASE}/api/tasks/${id}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
       tasks.value = tasks.value.filter(t => t.id !== id)
       return true
@@ -116,6 +121,7 @@ export const useTasks = () => {
 export const useParseNote = () => {
   const config = useRuntimeConfig()
   const API_BASE = config.public.apiBase
+  const { getAuthHeaders } = useAuthToken()
 
   const loading = useState<boolean>('parse-loading', () => false)
   const error = useState<string | null>('parse-error', () => null)
@@ -127,7 +133,8 @@ export const useParseNote = () => {
       const response = await $fetch<ParsedNote>(`${API_BASE}/api/parse-note`, {
         method: 'POST',
         body: { text },
-        credentials: 'include'
+        credentials: 'include',
+        headers: getAuthHeaders()
       })
       return response
     } catch (e) {
